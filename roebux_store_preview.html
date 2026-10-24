@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROEBUX STORE — Robux Langsung Masuk, Cukup Pakai Username</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'Plus Jakarta Sans', 'sans-serif']
+          },
+          colors: {
+            night: {
+              950: '#0D0818',
+              900: '#0F0A1C',
+              800: '#161029',
+              700: '#1A132F',
+              600: '#241B3F'
+            },
+            neon: {
+              purple: '#9D4EDD',
+              bright: '#A855F7',
+              light: '#C084FC',
+              pink: '#E879F9'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background-color: #0F0A1C;
+      color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .hero-glow {
+      background: radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.28) 0%, rgba(15, 10, 28, 0) 70%);
+    }
+    .ring-neon {
+      box-shadow: 0 0 55px rgba(168, 85, 247, 0.38), inset 0 0 32px rgba(192, 132, 252, 0.22);
+    }
+    .nom-card {
+      transition: all 0.16s ease-in-out;
+    }
+    .nom-card:hover {
+      border-color: rgba(192, 132, 252, 0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -6px rgba(157, 78, 221, 0.32);
+    }
+    .nom-card-active {
+      background: linear-gradient(145deg, rgba(157, 78, 221, 0.28) 0%, rgba(26, 19, 47, 0.95) 100%) !important;
+      border-color: #C084FC !important;
+      box-shadow: 0 0 22px rgba(168, 85, 247, 0.45) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-[#9D4EDD] selection:text-white">
+
+  <!-- ==================== A. STICKY TOP NAVBAR ==================== -->
+  <header class="sticky top-0 z-40 bg-[#0F0A1C]/90 backdrop-blur-xl border-b border-purple-500/15">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Left: Store Logo & Brand -->
+      <button type="button" id="brandHomeBtn" class="flex items-center gap-2.5 text-left group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#9D4EDD] to-[#7E22CE] flex items-center justify-center text-white font-display font-bold text-lg shadow-lg shadow-purple-900/40">
+          R
+        </div>
+        <span class="font-display font-bold text-base sm:text-lg tracking-tight text-white group-hover:text-[#C084FC] transition">
+          ROEBUX STORE
+        </span>
+      </button>
+
+      <!-- Center: Navigation Links (matching warungroebux.vercel.app) -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-300">
+        <button type="button" data-scroll-to="beli-robux" class="nav-scroll-btn hover:text-white transition">Beli Robux</button>
+        <button type="button" data-scroll-to="cara-order" class="nav-scroll-btn hover:text-white transition">Cara order</button>
+        <button type="button" data-scroll-to="cek-pesanan" class="nav-scroll-btn hover:text-white transition">Cek pesanan</button>
+        <button type="button" data-scroll-to="faq" class="nav-scroll-btn hover:text-white transition">FAQ</button>
+
+        <!-- Protected Admin Tabs (Hidden for regular buyers, visible after Admin Login) -->
+        <button
+          type="button"
+          id="navAdminTabBtn"
+          data-tab="admin"
+          class="nav-tab-btn hidden px-3 py-1 rounded-lg bg-purple-500/20 text-[#C084FC] border border-purple-400/30 font-semibold text-xs flex items-center gap-1.5"
+        >
+          <span>Rekap Transaksi</span>
+          <span id="navTxCountBadge" class="px-1.5 py-0.2 bg-[#9D4EDD] text-white rounded-full text-[10px] font-bold">6</span>
+        </button>
+        <button
+          type="button"
+          id="navDatabaseTabBtn"
+          data-tab="database"
+          class="nav-tab-btn hidden px-3 py-1 rounded-lg bg-purple-500/20 text-[#C084FC] border border-purple-400/30 font-semibold text-xs"
+        >
+          SQL &amp; Auto-Order
+        </button>
+      </nav>
+
+      <!-- Right: Primary CTA "Beli sekarang" + Discrete Admin Lock -->
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="headerBuyNowBtn"
+          class="px-4 py-2 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white font-semibold text-xs sm:text-sm shadow-lg shadow-purple-900/40 transition"
+        >
+          Beli sekarang
+        </button>
+
+        <button
+          type="button"
+          id="openAdminLoginBtn"
+          class="px-3 py-2 rounded-xl bg-[#1A132F] hover:bg-[#241B3F] text-zinc-300 hover:text-white border border-purple-500/20 text-xs font-medium transition flex items-center gap-1"
+          title="Login Admin ROEBUX STORE"
+        >
+          <span>🔒</span>
+          <span class="hidden sm:inline">Admin</span>
+        </button>
+
+        <button
+          type="button"
+          id="adminLogoutBtn"
+          class="hidden px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold transition"
+        >
+          Keluar Admin
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1">
+    <!-- ==================== MAIN STOREFRONT VIEW ==================== -->
+    <div id="tab-store">
+
+      <!-- ==================== B. HERO SECTION ==================== -->
+      <section class="relative overflow-hidden pt-10 pb-14 sm:pt-16 sm:pb-20 border-b border-purple-500/10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <!-- Left Column: Title, Subtitle, CTAs, and 4 Pill Badges -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A132F] border border-purple-500/25 text-xs font-semibold text-[#C084FC]">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>ROBUX VIA SEND · AUTO-ORDER AKTIF 24 JAM</span>
+            </div>
+
+            <h1 class="font-display text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.15]">
+              Robux langsung masuk, <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#C084FC] to-[#E879F9]">cukup pakai username.</span>
+            </h1>
+
+            <p class="text-zinc-400 text-sm sm:text-base max-w-xl leading-relaxed">
+              Tanpa password. Pilih nominal, isi username Roblox, bayar lewat QRIS. Proses otomatis sekitar 1 menit dan langsung tercatat di web.
+            </p>
+
+            <!-- Hero CTA Buttons -->
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                id="heroChooseNominalBtn"
+                class="px-6 py-3 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white font-semibold text-sm shadow-lg shadow-purple-900/50 transition"
+              >
+                Pilih nominal
+              </button>
+              <button
+                type="button"
+                id="heroHowToOrderBtn"
+                class="px-6 py-3 rounded-xl bg-transparent hover:bg-white/5 text-white border border-purple-400/30 font-semibold text-sm transition"
+              >
+                Lihat cara order
+              </button>
+            </div>
+
+            <!-- 4 Feature Pill Badges below Hero Buttons -->
+            <div class="flex flex-wrap items-center gap-2 pt-2">
+              <span class="px-3.5 py-1.5 rounded-full bg-[#1A132F] border border-purple-500/20 text-xs font-medium text-zinc-300">
+                ✓ Via username
+              </span>
+              <span class="px-3.5 py-1.5 rounded-full bg-[#1A132F] border border-purple-500/20 text-xs font-medium text-zinc-300">
+                ✓ Bayar QRIS semua e-wallet &amp; m-banking
+              </span>
+              <span class="px-3.5 py-1.5 rounded-full bg-[#1A132F] border border-purple-500/20 text-xs font-medium text-zinc-300">
+                ✓ Proses ± 1 menit
+              </span>
+              <span class="px-3.5 py-1.5 rounded-full bg-[#1A132F] border border-purple-500/20 text-xs font-medium text-zinc-300">
+                ✓ 50 – 1.000 Robux
+              </span>
+            </div>
+          </div>
+
+          <!-- Right Column: Glowing Neon Ring Highlight Circle -->
+          <div class="lg:col-span-5 flex items-center justify-center relative">
+            <div class="hero-glow absolute inset-0 pointer-events-none"></div>
+            <div class="w-60 h-60 sm:w-68 sm:h-68 rounded-full bg-[#161029] border-2 border-[#A855F7]/60 ring-neon flex flex-col items-center justify-center text-center p-6 relative z-10">
+              <span class="text-xs uppercase tracking-widest text-zinc-400 font-semibold">mulai dari</span>
+              <span class="font-display text-6xl sm:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-[#C084FC] my-1">
+                50
+              </span>
+              <span class="text-sm sm:text-base font-bold text-[#E879F9]">Robux · Rp 8.000</span>
+              <span class="mt-2.5 px-3 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-[11px] font-semibold text-purple-200">
+                Terima Utuh Tanpa Potongan
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== C. PEMILIHAN NOMINAL ROBUX & FORM ORDER ==================== -->
+      <section id="beli-robux" class="py-12 sm:py-16 max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="mb-8">
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Beli Robux via username</h2>
+          <p class="text-zinc-400 text-sm sm:text-base mt-1">
+            Harga Rp 160 per Robux. Pilih satu nominal, lalu lengkapi data di kotak pesanan.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <!-- Left Column: 20 Robux Nominal Cards (4 cols x 5 rows on desktop) -->
+          <div class="lg:col-span-7 xl:col-span-8 space-y-4">
+            <!-- Category Filter Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
+              <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Pilih Nominal Paket (20 Pilihan)</span>
+              <div class="flex items-center gap-1.5 bg-[#1A132F] p-1 rounded-xl border border-purple-500/20">
+                <button type="button" data-pkg-filter="all" class="pkg-filter-btn px-3 py-1 rounded-lg text-xs font-semibold bg-[#9D4EDD] text-white transition">Semua</button>
+                <button type="button" data-pkg-filter="small" class="pkg-filter-btn px-3 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition">50–300</button>
+                <button type="button" data-pkg-filter="medium" class="pkg-filter-btn px-3 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition">350–650</button>
+                <button type="button" data-pkg-filter="large" class="pkg-filter-btn px-3 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition">700–1.000</button>
+              </div>
+            </div>
+
+            <!-- 4x5 Grid of 20 Packages -->
+            <div id="robuxPackagesGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Right Column: Sticky Order Box ("Pesanan kamu") -->
+          <div class="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 space-y-4">
+            <div class="bg-[#1A132F] border border-purple-500/25 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+              <div class="flex items-center justify-between border-b border-purple-500/15 pb-3.5">
+                <h3 class="font-display text-lg font-bold text-white">Pesanan kamu</h3>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold">
+                  Auto-Order ± 1m
+                </span>
+              </div>
+
+              <!-- Field 1: Username Roblox -->
+              <div class="space-y-1.5">
+                <label for="robloxUsernameInput" class="block text-xs font-semibold text-zinc-200">
+                  Username Roblox
+                </label>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="robloxUsernameInput"
+                    placeholder="contoh: Builderman_01"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-[#0D0818] border border-purple-500/30 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#C084FC] transition"
+                  />
+                  <button
+                    type="button"
+                    id="verifyUsernameBtn"
+                    class="px-3.5 py-2.5 rounded-xl bg-[#241B3F] hover:bg-[#9D4EDD] text-purple-200 hover:text-white border border-purple-400/30 text-xs font-semibold shrink-0 transition"
+                  >
+                    Cek Akun
+                  </button>
+                </div>
+                <p class="text-[11px] text-zinc-400">
+                  3–20 karakter: huruf, angka, atau garis bawah (_). Bukan display name.
+                </p>
+
+                <!-- Sample quick-test usernames -->
+                <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span class="text-[11px] text-zinc-400">Contoh:</span>
+                  <button type="button" data-sample-user="CacaBlox_ID" class="sample-user-btn text-[11px] px-2 py-0.5 rounded-md bg-[#0D0818] hover:bg-purple-900/40 text-[#C084FC] border border-purple-500/20 transition">@CacaBlox_ID</button>
+                  <button type="button" data-sample-user="RizkyGamer99" class="sample-user-btn text-[11px] px-2 py-0.5 rounded-md bg-[#0D0818] hover:bg-purple-900/40 text-[#C084FC] border border-purple-500/20 transition">@RizkyGamer99</button>
+                  <button type="button" data-sample-user="NaylaSweet_RBX" class="sample-user-btn text-[11px] px-2 py-0.5 rounded-md bg-[#0D0818] hover:bg-purple-900/40 text-[#C084FC] border border-purple-500/20 transition">@NaylaSweet_RBX</button>
+                </div>
+
+                <!-- Verified User Mini Badge -->
+                <div id="verifiedUserCard" class="hidden mt-2 p-2.5 rounded-xl bg-[#0D0818] border border-emerald-500/30 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2.5">
+                    <div id="verifiedAvatarBox" class="w-8 h-8 rounded-lg bg-[#9D4EDD] text-white font-display font-bold text-sm flex items-center justify-center">
+                      C
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <span id="verifiedDisplayName" class="text-xs font-bold text-white">@CacaBlox_ID</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-semibold">Valid ✓</span>
+                      </div>
+                      <span class="text-[11px] text-zinc-400">Roblox ID: <strong id="verifiedUserId">381920411</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Field 2: Nomor WhatsApp (opsional) -->
+              <div class="space-y-1.5">
+                <label for="buyerWhatsappInput" class="block text-xs font-semibold text-zinc-200">
+                  Nomor WhatsApp <span class="text-zinc-400 font-normal">(opsional — untuk kirim bukti struk)</span>
+                </label>
+                <input
+                  type="tel"
+                  id="buyerWhatsappInput"
+                  placeholder="08xxxxxxxxxx"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-[#0D0818] border border-purple-500/30 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#C084FC] transition"
+                />
+              </div>
+
+              <!-- Field 3: Pilihan Pembayaran -->
+              <div class="space-y-1.5">
+                <span class="block text-xs font-semibold text-zinc-200">Metode pembayaran</span>
+                <div class="grid grid-cols-2 gap-2" id="paymentMethodsList">
+                  <button
+                    type="button"
+                    data-payment="QRIS (Semua E-Wallet & M-Banking)"
+                    data-fee="0"
+                    class="payment-btn p-2.5 rounded-xl bg-[#241B3F] border border-[#C084FC] text-left transition"
+                  >
+                    <div class="text-xs font-bold text-white">QRIS Instan</div>
+                    <div class="text-[10px] text-emerald-300">Gratis biaya admin</div>
+                  </button>
+                  <button
+                    type="button"
+                    data-payment="DANA / GoPay / OVO"
+                    data-fee="0"
+                    class="payment-btn p-2.5 rounded-xl bg-[#0D0818] border border-purple-500/20 hover:border-purple-400/50 text-left transition"
+                  >
+                    <div class="text-xs font-bold text-zinc-200">E-Wallet Langsung</div>
+                    <div class="text-[10px] text-zinc-400">DANA, GoPay, ShopeePay</div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Summary Breakdown ("Nominal", "Username", "Total bayar") -->
+              <div class="p-4 rounded-xl bg-[#0D0818] border border-purple-500/20 space-y-2 text-xs sm:text-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-zinc-400">Nominal</span>
+                  <span id="summaryRobux" class="font-bold text-white">Belum dipilih</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-zinc-400">Username</span>
+                  <span id="summaryUsername" class="font-bold text-[#C084FC]">–</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-zinc-400">Metode bayar</span>
+                  <span id="summaryPayment" class="font-medium text-zinc-200">QRIS</span>
+                </div>
+                <div class="pt-2 border-t border-purple-500/15 flex items-baseline justify-between">
+                  <span class="font-semibold text-zinc-200">Total bayar</span>
+                  <span id="summaryTotalPrice" class="font-display text-xl font-bold text-[#E879F9]">Rp 0</span>
+                </div>
+              </div>
+
+              <!-- Primary Submit CTA Button -->
+              <button
+                type="button"
+                id="createOrderBtn"
+                class="w-full py-3.5 px-5 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white font-semibold text-sm shadow-lg shadow-purple-900/50 transition flex items-center justify-center gap-2"
+              >
+                <span>Bayar dengan QRIS — Kirim Robux Instan</span>
+              </button>
+
+              <p class="text-[11px] text-center text-zinc-400">
+                ✓ Robux diterima utuh (bebas pajak 30%) · ✓ Otomatis masuk ± 1 menit
+              </p>
+            </div>
+
+            <!-- Live Recent Buyers Feed -->
+            <div class="bg-[#1A132F]/80 border border-purple-500/20 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-zinc-300">Transaksi otomatis terbaru</span>
+                <span class="inline-flex items-center gap-1 text-emerald-400 text-[11px] font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  Live
+                </span>
+              </div>
+              <div id="liveStreamBox" class="space-y-1.5 text-xs">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== D. BAGIAN CARA ORDER (4 LANGKAH) ==================== -->
+      <section id="cara-order" class="py-12 sm:py-16 border-t border-purple-500/10 bg-[#120B24]/60">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+          <div class="mb-8">
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Cara order</h2>
+            <p class="text-zinc-400 text-sm sm:text-base mt-1">
+              Empat langkah mudah, tidak perlu membuat akun atau memberikan password.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20 space-y-2.5">
+              <div class="w-8 h-8 rounded-lg bg-[#9D4EDD]/25 border border-[#C084FC]/40 text-[#C084FC] font-display font-bold text-sm flex items-center justify-center">
+                1
+              </div>
+              <h3 class="font-display font-bold text-base text-white">Pilih nominal</h3>
+              <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Ketuk paket Robux yang kamu mau (mulai dari 50 Robux hingga 1.000 Robux).
+              </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20 space-y-2.5">
+              <div class="w-8 h-8 rounded-lg bg-[#9D4EDD]/25 border border-[#C084FC]/40 text-[#C084FC] font-display font-bold text-sm flex items-center justify-center">
+                2
+              </div>
+              <h3 class="font-display font-bold text-base text-white">Isi username</h3>
+              <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Tulis username asli Roblox kamu (bukan display name), lalu klik Cek Akun.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20 space-y-2.5">
+              <div class="w-8 h-8 rounded-lg bg-[#9D4EDD]/25 border border-[#C084FC]/40 text-[#C084FC] font-display font-bold text-sm flex items-center justify-center">
+                3
+              </div>
+              <h3 class="font-display font-bold text-base text-white">Scan QRIS</h3>
+              <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Bayar sesuai total tagihan dari aplikasi e-wallet (DANA, GoPay, OVO, ShopeePay) atau m-banking.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20 space-y-2.5">
+              <div class="w-8 h-8 rounded-lg bg-[#9D4EDD]/25 border border-[#C084FC]/40 text-[#C084FC] font-display font-bold text-sm flex items-center justify-center">
+                4
+              </div>
+              <h3 class="font-display font-bold text-base text-white">Otomatis masuk</h3>
+              <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Sistem Auto-Order langsung mengirim Robux ke akunmu dalam ± 1 menit dan mencatat bukti struknya di web.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== E. CEK PESANAN (ORDER TRACKER) ==================== -->
+      <section id="cek-pesanan" class="py-12 sm:py-16 border-t border-purple-500/10 max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="bg-[#1A132F] border border-purple-500/25 rounded-2xl p-6 sm:p-8 space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 class="font-display text-xl sm:text-2xl font-bold text-white">Cek status pesanan kamu</h2>
+              <p class="text-zinc-400 text-xs sm:text-sm mt-1">
+                Masukkan Nomor Invoice (contoh: <code>ROE-20261023-906</code>) atau Username Roblox untuk melihat bukti pengiriman otomatis.
+              </p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto">
+              <input
+                type="text"
+                id="trackQueryInput"
+                placeholder="Ketik No. Invoice atau Username..."
+                class="px-4 py-2.5 rounded-xl bg-[#0D0818] border border-purple-500/30 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#C084FC] min-w-[240px]"
+              />
+              <button
+                type="button"
+                id="searchTrackBtn"
+                class="px-5 py-2.5 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white font-semibold text-sm transition shrink-0"
+              >
+                Cari pesanan
+              </button>
+            </div>
+          </div>
+
+          <div id="trackerResultContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== F. PERTANYAAN UMUM (FAQ ACCORDION) ==================== -->
+      <section id="faq" class="py-12 sm:py-16 border-t border-purple-500/10 max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="mb-8">
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Pertanyaan umum</h2>
+          <p class="text-zinc-400 text-sm sm:text-base mt-1">
+            Informasi penting seputar top up Robux via username di ROEBUX STORE.
+          </p>
+        </div>
+
+        <div class="space-y-3" id="faqContainer">
+          <!-- FAQ 1 -->
+          <div class="faq-item rounded-2xl bg-[#1A132F] border border-purple-500/20 p-5 cursor-pointer transition hover:border-purple-400/40">
+            <div class="flex items-center justify-between gap-4">
+              <span class="font-display font-bold text-sm sm:text-base text-white">Apa bedanya username dan display name?</span>
+              <span class="faq-arrow text-[#C084FC] font-bold transition-transform rotate-180">⌄</span>
+            </div>
+            <p class="faq-body text-xs sm:text-sm text-zinc-300 mt-3 leading-relaxed">
+              Username adalah nama unik akun Roblox kamu (diawali tanda <code>@</code>). Cek di Roblox: buka <strong>Settings</strong>, lalu <strong>Account Info</strong>. Pastikan menulis username yang benar agar Robux langsung masuk ke akunmu.
+            </p>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="faq-item rounded-2xl bg-[#1A132F] border border-purple-500/20 p-5 cursor-pointer transition hover:border-purple-400/40">
+            <div class="flex items-center justify-between gap-4">
+              <span class="font-display font-bold text-sm sm:text-base text-white">Apakah perlu password atau kode login?</span>
+              <span class="faq-arrow text-[#C084FC] font-bold transition-transform">⌄</span>
+            </div>
+            <p class="faq-body hidden text-xs sm:text-sm text-zinc-300 mt-3 leading-relaxed">
+              Tidak. Kami hanya meminta username Roblox kamu. Jangan pernah membagikan password atau kode keamanan akunmu kepada siapa pun.
+            </p>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="faq-item rounded-2xl bg-[#1A132F] border border-purple-500/20 p-5 cursor-pointer transition hover:border-purple-400/40">
+            <div class="flex items-center justify-between gap-4">
+              <span class="font-display font-bold text-sm sm:text-base text-white">Bagaimana Robux dikirim?</span>
+              <span class="faq-arrow text-[#C084FC] font-bold transition-transform">⌄</span>
+            </div>
+            <p class="faq-body hidden text-xs sm:text-sm text-zinc-300 mt-3 leading-relaxed">
+              Robux dikirim otomatis via Send ke akun kamu begitu pembayaran QRIS terverifikasi oleh sistem, sekitar ± 1 menit, dan seluruh riwayatnya tercatat di web.
+            </p>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="faq-item rounded-2xl bg-[#1A132F] border border-purple-500/20 p-5 cursor-pointer transition hover:border-purple-400/40">
+            <div class="flex items-center justify-between gap-4">
+              <span class="font-display font-bold text-sm sm:text-base text-white">Bayar pakai apa?</span>
+              <span class="faq-arrow text-[#C084FC] font-bold transition-transform">⌄</span>
+            </div>
+            <p class="faq-body hidden text-xs sm:text-sm text-zinc-300 mt-3 leading-relaxed">
+              QRIS Otomatis: bisa di-scan dari GoPay, OVO, DANA, ShopeePay, LinkAja, serta semua aplikasi m-banking (BCA, BRI, Mandiri, BNI, SeaBank) yang mendukung QRIS.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== PROTECTED ADMIN VIEW 1: REKAP TRANSAKSI ==================== -->
+    <section id="tab-admin" class="hidden py-10 max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+      <div class="p-6 rounded-2xl bg-[#1A132F] border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-semibold mb-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            MODE ADMIN AKTIF · DATABASE CONNECTED
+          </span>
+          <h2 class="font-display text-2xl font-bold text-white">Dashboard Rekap Transaksi ROEBUX STORE</h2>
+          <p class="text-xs sm:text-sm text-zinc-400">Semua pesanan dari halaman depan otomatis tercatat di sini lengkap dengan log Auto-Order.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="backToStoreFromAdminBtn"
+            class="px-3.5 py-2 rounded-xl bg-[#0D0818] hover:bg-purple-950 text-zinc-300 border border-purple-500/25 text-xs font-semibold transition"
+          >
+            ← Kembali ke Toko
+          </button>
+          <button
+            type="button"
+            id="simulateRandomOrderBtn"
+            class="px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-[#C084FC] border border-purple-400/30 text-xs font-semibold transition"
+          >
+            + Simulasi Order Masuk
+          </button>
+          <button
+            type="button"
+            id="exportCsvBtn"
+            class="px-4 py-2 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white text-xs font-semibold shadow-md transition"
+          >
+            Export CSV / Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20">
+          <span class="text-xs text-zinc-400 uppercase font-semibold">Total Omzet (PAID)</span>
+          <div id="kpiTotalRevenue" class="font-display text-2xl font-bold text-[#E879F9] mt-1">Rp 368.000</div>
+          <span class="text-[11px] text-emerald-400 mt-1 block">✓ Terverifikasi QRIS Webhook</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20">
+          <span class="text-xs text-zinc-400 uppercase font-semibold">Total Robux Terkirim</span>
+          <div id="kpiTotalRobux" class="font-display text-2xl font-bold text-white mt-1">2.300 R$</div>
+          <span class="text-[11px] text-zinc-400 mt-1 block">Rate: Rp 160 / Robux</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20">
+          <span class="text-xs text-zinc-400 uppercase font-semibold">Total Transaksi</span>
+          <div id="kpiTotalOrders" class="font-display text-2xl font-bold text-white mt-1">6 Order</div>
+          <span id="kpiSuccessRate" class="text-[11px] text-emerald-400 mt-1 block">100% Auto-Order Sukses</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20">
+          <span class="text-xs text-zinc-400 uppercase font-semibold">Kecepatan Kirim</span>
+          <div class="font-display text-2xl font-bold text-[#C084FC] mt-1">± 41 Detik</div>
+          <span class="text-[11px] text-zinc-400 mt-1 block">Target SLA: ± 1 Menit</span>
+        </div>
+      </div>
+
+      <!-- Chart + Bot Status -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20">
+          <h3 class="font-display font-bold text-base text-white mb-3">Grafik Paket Robux Terlaris</h3>
+          <div class="relative h-64">
+            <canvas id="salesChartCanvas"></canvas>
+          </div>
+        </div>
+        <div class="lg:col-span-4 p-5 rounded-2xl bg-[#1A132F] border border-purple-500/20 flex flex-col justify-between">
+          <div class="space-y-3">
+            <h3 class="font-display font-bold text-base text-white">Status Server Auto-Order</h3>
+            <div class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 flex items-center justify-between text-xs">
+              <div>
+                <div class="font-bold text-white">Akun Sender #1</div>
+                <div class="text-zinc-400">Stok: 48.550 R$</div>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">READY</span>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 flex items-center justify-between text-xs">
+              <div>
+                <div class="font-bold text-white">QRIS Webhook</div>
+                <div class="text-zinc-400">TriPay / Midtrans</div>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">ONLINE</span>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 flex items-center justify-between text-xs">
+              <div>
+                <div class="font-bold text-white">Database Cloud</div>
+                <div class="text-zinc-400">Supabase Free Tier</div>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">AKTIF</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-purple-500/15 space-y-2 text-xs">
+            <label for="adminWaNumberInput" class="block font-semibold text-zinc-300">No. WhatsApp Admin (Tujuan Konfirmasi):</label>
+            <div class="flex gap-1.5">
+              <input
+                type="tel"
+                id="adminWaNumberInput"
+                value="6281234567890"
+                placeholder="62812xxxxxxxx"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-[#0D0818] border border-purple-500/30 text-white text-xs font-mono focus:outline-none focus:border-[#C084FC]"
+              />
+              <button
+                type="button"
+                id="saveAdminWaBtn"
+                class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shrink-0 transition"
+              >
+                Simpan WA
+              </button>
+            </div>
+            <div class="pt-1 flex items-center justify-between">
+              <span class="text-zinc-400">Reset data demo?</span>
+              <button type="button" id="resetDemoDataBtn" class="text-[#C084FC] hover:underline font-semibold">Reset Awal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="p-5 sm:p-6 rounded-2xl bg-[#1A132F] border border-purple-500/20 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 class="font-display font-bold text-lg text-white">Tabel Histori Semua Transaksi</h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <input
+              type="text"
+              id="adminSearchInput"
+              placeholder="Cari invoice / username..."
+              class="px-3.5 py-2 rounded-xl bg-[#0D0818] border border-purple-500/30 text-xs text-white focus:outline-none focus:border-[#C084FC]"
+            />
+            <select
+              id="adminStatusFilter"
+              class="px-3 py-2 rounded-xl bg-[#0D0818] border border-purple-500/30 text-xs text-zinc-200 focus:outline-none"
+            >
+              <option value="ALL">Semua Status</option>
+              <option value="SUCCESS">SUCCESS</option>
+              <option value="PROCESSING">PROCESSING</option>
+              <option value="FAILED">FAILED</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-purple-500/20 text-zinc-400 bg-[#0D0818]/60">
+                <th class="py-3 px-3">No. Invoice</th>
+                <th class="py-3 px-3">Waktu</th>
+                <th class="py-3 px-3">Username Roblox</th>
+                <th class="py-3 px-3 text-right">Nominal</th>
+                <th class="py-3 px-3 text-right">Total Bayar</th>
+                <th class="py-3 px-3">Metode</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3 px-3 text-center">Log</th>
+              </tr>
+            </thead>
+            <tbody id="adminTransactionsTableBody" class="divide-y divide-purple-500/10">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROTECTED ADMIN VIEW 2: SQL & DEPLOY CODE ==================== -->
+    <section id="tab-database" class="hidden py-10 max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+      <div class="p-6 rounded-2xl bg-[#1A132F] border border-purple-500/30 space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-3 border-b border-purple-500/20 pb-4">
+          <div>
+            <h2 class="font-display text-2xl font-bold text-white">Skema SQL Supabase &amp; Kode Auto-Order</h2>
+            <p class="text-xs sm:text-sm text-zinc-400">Siap di-copy ke Supabase SQL Editor (Gratis) &amp; Next.js Vercel.</p>
+          </div>
+          <button
+            type="button"
+            id="backToStoreFromDbBtn"
+            class="px-3.5 py-2 rounded-xl bg-[#0D0818] hover:bg-purple-950 text-zinc-300 border border-purple-500/25 text-xs font-semibold transition"
+          >
+            ← Kembali ke Toko
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white">1. Skema PostgreSQL (20 Paket Harga Rp 8.000 – Rp 160.000 &amp; Tabel Transaksi)</span>
+            <button type="button" data-copy-target="sqlSchemaCode" class="copy-code-btn px-3.5 py-1.5 rounded-lg bg-[#9D4EDD] text-white text-xs font-semibold">Salin SQL</button>
+          </div>
+          <pre id="sqlSchemaCode" class="bg-[#0D0818] text-purple-200 p-4 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed">CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(30) UNIQUE NOT NULL,
+  robux_amount INT NOT NULL,
+  price_idr INT NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO products (code, robux_amount, price_idr) VALUES
+  ('RBX-50', 50, 8000), ('RBX-100', 100, 16000), ('RBX-150', 150, 24000), ('RBX-200', 200, 32000),
+  ('RBX-250', 250, 40000), ('RBX-300', 300, 48000), ('RBX-350', 350, 56000), ('RBX-400', 400, 64000),
+  ('RBX-450', 450, 72000), ('RBX-500', 500, 80000), ('RBX-550', 550, 88000), ('RBX-600', 600, 96000),
+  ('RBX-650', 650, 104000), ('RBX-700', 700, 112000), ('RBX-750', 750, 120000), ('RBX-800', 800, 128000),
+  ('RBX-850', 850, 136000), ('RBX-900', 900, 144000), ('RBX-950', 950, 152000), ('RBX-1000', 1000, 160000)
+ON CONFLICT (code) DO UPDATE SET price_idr = EXCLUDED.price_idr;
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  invoice_number VARCHAR(40) UNIQUE NOT NULL,
+  roblox_username VARCHAR(60) NOT NULL,
+  roblox_user_id BIGINT NOT NULL,
+  product_code VARCHAR(30) REFERENCES products(code),
+  robux_amount INT NOT NULL,
+  amount_paid_idr INT NOT NULL,
+  payment_method VARCHAR(50) NOT NULL,
+  buyer_whatsapp VARCHAR(30),
+  payment_status VARCHAR(20) DEFAULT 'UNPAID',
+  order_status VARCHAR(20) DEFAULT 'PENDING',
+  auto_order_response JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);</pre>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white">2. Endpoint Webhook Pembayaran &amp; Auto-Order (app/api/webhook/payment/route.ts)</span>
+            <button type="button" data-copy-target="webhookJsCode" class="copy-code-btn px-3.5 py-1.5 rounded-lg bg-[#9D4EDD] text-white text-xs font-semibold">Salin Kode</button>
+          </div>
+          <pre id="webhookJsCode" class="bg-[#0D0818] text-purple-200 p-4 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed">import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+export async function POST(req: Request) {
+  const payload = await req.json();
+  const invoiceNumber = payload.merchant_ref || payload.order_id;
+  const status = payload.status || payload.transaction_status;
+
+  if (status === 'PAID' || status === 'settlement') {
+    const { data: tx } = await supabase.from('transactions').select('*').eq('invoice_number', invoiceNumber).single();
+    if (!tx || tx.order_status === 'SUCCESS') return NextResponse.json({ message: 'Already processed' });
+
+    await supabase.from('transactions').update({ payment_status: 'PAID', order_status: 'PROCESSING' }).eq('invoice_number', invoiceNumber);
+    const sendResult = await executeRobuxAutoSend({ robloxUserId: tx.roblox_user_id, robuxAmount: tx.robux_amount });
+
+    await supabase.from('transactions').update({
+      order_status: 'SUCCESS',
+      auto_order_response: sendResult,
+      completed_at: new Date().toISOString()
+    }).eq('invoice_number', invoiceNumber);
+  }
+  return NextResponse.json({ received: true });
+}</pre>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white">3. Generator QRIS Dinamis (Ubah QRIS Statis ke Dinamis EMVCo Tag 54 + CRC16 atau via API Payment Gateway)</span>
+            <button type="button" data-copy-target="qrisDynamicJsCode" class="copy-code-btn px-3.5 py-1.5 rounded-lg bg-[#9D4EDD] text-white text-xs font-semibold">Salin Kode QRIS Dinamis</button>
+          </div>
+          <pre id="qrisDynamicJsCode" class="bg-[#0D0818] text-purple-200 p-4 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed">// ============================================================================
+// OPSI A: GENERATE QRIS DINAMIS VIA API PAYMENT GATEWAY (MIDTRANS / TRIPAY)
+// Kelebihan: Otomatis dapat Webhook LUNAS tanpa cek mutasi manual
+// ============================================================================
+export async function createGatewayDynamicQris(invoice: string, amountIdr: number) {
+  const res = await fetch('https://api.midtrans.com/v2/charge', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Basic ' + Buffer.from(process.env.MIDTRANS_SERVER_KEY + ':').toString('base64')
+    },
+    body: JSON.stringify({
+      payment_type: 'qris',
+      transaction_details: { order_id: invoice, gross_amount: amountIdr },
+      qris: { acquirer: 'gopay' }
+    })
+  });
+  return await res.json(); // Mengembalikan actions[0].url (Gambar QRIS) & qr_string dinamis
+}
+
+// ============================================================================
+// OPSI B: UBAH QRIS STATIS PRIBADI JADI QRIS DINAMIS (STANDAR EMVCo + CRC16)
+// Kelebihan: Tanpa daftar Payment Gateway, nominal otomatis muncul saat di-scan
+// ============================================================================
+export function convertStaticToDynamicQris(staticQris: string, amountIdr: number): string {
+  // 1. Hapus 4 karakter checksum CRC16 lama di ujung string (setelah "6304")
+  const withoutCrc = staticQris.slice(0, -4);
+  // 2. Ubah kode penanda statis "010211" menjadi dinamis "010212"
+  const step1 = withoutCrc.replace('010211', '010212');
+  // 3. Buat Tag 54 (Transaction Amount): "54" + 2 digit panjang nominal + nominal
+  const amountStr = String(Math.floor(amountIdr));
+  const tag54 = '54' + String(amountStr.length).padStart(2, '0') + amountStr;
+  // 4. Sisipkan Tag 54 tepat sebelum kode negara "5802ID"
+  const parts = step1.split('5802ID');
+  const payloadToHash = parts[0] + tag54 + '5802ID' + parts[1];
+
+  // 5. Hitung ulang Checksum CRC16-CCITT (Polynomial 0x1021, Init 0xFFFF)
+  let crc = 0xFFFF;
+  for (let i = 0; i < payloadToHash.length; i++) {
+    crc ^= payloadToHash.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+    }
+  }
+  const crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+  return payloadToHash + crcHex;
+}</pre>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white">4. Konfirmasi &amp; Notifikasi WhatsApp Otomatis setelah Bayar (Fonnte WA Gateway API + Link wa.me)</span>
+            <button type="button" data-copy-target="waNotifierJsCode" class="copy-code-btn px-3.5 py-1.5 rounded-lg bg-[#9D4EDD] text-white text-xs font-semibold">Salin Kode WhatsApp</button>
+          </div>
+          <pre id="waNotifierJsCode" class="bg-[#0D0818] text-purple-200 p-4 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed">// File: lib/whatsappNotifier.ts
+// Mengirim pesan konfirmasi otomatis ke WA Pembeli & WA Admin begitu pembayaran QRIS LUNAS
+
+export async function sendWhatsAppConfirmation(params: {
+  invoiceNumber: string;
+  robloxUsername: string;
+  robloxUserId: number;
+  robuxAmount: number;
+  amountIdr: number;
+  buyerWhatsapp?: string;
+}) {
+  const message = [
+    '*✅ KONFIRMASI PEMBAYARAN ROEBUX STORE*',
+    `No. Invoice : ${params.invoiceNumber}`,
+    `Username    : @${params.robloxUsername} (ID: ${params.robloxUserId})`,
+    `Nominal     : ${params.robuxAmount} Robux (Utuh)`,
+    `Total Bayar : Rp ${params.amountIdr.toLocaleString('id-ID')} (LUNAS)`,
+    `Status      : Robux telah dikirim via Auto-Order (± 1 Menit)!`,
+    '',
+    'Terima kasih sudah top up di ROEBUX STORE!'
+  ].join('\n');
+
+  // 1. Kirim otomatis dari server via Fonnte WhatsApp Gateway API (https://docs.fonnte.com/api-send-message/)
+  const targets = [params.buyerWhatsapp, process.env.ADMIN_WHATSAPP_NUMBER].filter(Boolean).join(',');
+  if (process.env.FONNTE_API_TOKEN && targets) {
+    await fetch('https://api.fonnte.com/send', {
+      method: 'POST',
+      headers: { Authorization: process.env.FONNTE_API_TOKEN },
+      body: new URLSearchParams({ target: targets, message })
+    });
+  }
+
+  // 2. Buat link Click-to-Chat (wa.me) untuk tombol konfirmasi langsung dari browser pembeli
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281234567890';
+  const waClickUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(message)}`;
+  return { waClickUrl, message };
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODAL: QRIS CHECKOUT & AUTO-ORDER ==================== -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-[#1A132F] border border-purple-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 relative">
+      <div class="flex items-center justify-between border-b border-purple-500/20 pb-3">
+        <div>
+          <span id="modalInvoiceBadge" class="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-[#C084FC]">
+            ROE-20261023-801
+          </span>
+          <h3 class="font-display text-lg font-bold text-white mt-1">Bayar dengan QRIS</h3>
+        </div>
+        <button type="button" id="closeCheckoutModalBtn" class="w-8 h-8 rounded-lg bg-[#0D0818] text-zinc-400 hover:text-white">✕</button>
+      </div>
+
+      <!-- Stage 1: Dynamic QRIS Display -->
+      <div id="modalStagePayment" class="space-y-4 text-center">
+        <div class="p-4 rounded-xl bg-[#0D0818] border border-purple-500/25 space-y-2">
+          <div class="flex items-center justify-between text-[11px] px-1">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold">QRIS DINAMIS (TAG 54)</span>
+            <span class="text-amber-300 font-mono font-semibold">Berlaku: <span id="qrisCountdownTimer">14:59</span></span>
+          </div>
+
+          <div id="modalPayDetails" class="text-xs font-semibold text-[#C084FC]">250 Robux → @CacaBlox_ID</div>
+          <div id="modalPayAmount" class="font-display text-2xl font-bold text-white">Rp 40.000</div>
+          <div class="text-[11px] text-emerald-400 font-medium">✓ Nominal otomatis terisi saat di-scan (tidak perlu ketik angka)</div>
+
+          <div class="mx-auto w-48 bg-white p-3 rounded-xl flex flex-col items-center justify-center shadow-md">
+            <div class="w-full flex items-center justify-between text-[9px] font-extrabold text-[#0F0A1C] border-b border-zinc-200 pb-1 mb-1.5">
+              <span>QRIS</span>
+              <span>ROEBUX STORE</span>
+            </div>
+            <canvas id="dynamicQrisCanvas" width="160" height="160" class="w-40 h-40"></canvas>
+            <span id="modalQrisCrcBadge" class="text-[9px] font-mono font-bold text-zinc-600 mt-1">CRC16: 8F2A · NMID: ID2026ROEBUX</span>
+          </div>
+
+          <div class="pt-1 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              id="downloadQrisPngBtn"
+              class="px-3 py-1.5 rounded-lg bg-[#1A132F] hover:bg-[#241B3F] text-xs font-semibold text-[#C084FC] border border-purple-500/30 transition"
+            >
+              ⬇ Unduh Gambar QRIS
+            </button>
+            <button
+              type="button"
+              id="copyEmvPayloadBtn"
+              class="px-3 py-1.5 rounded-lg bg-[#1A132F] hover:bg-[#241B3F] text-xs font-semibold text-zinc-300 border border-purple-500/30 transition"
+            >
+              Salin String EMVCo
+            </button>
+          </div>
+          <input type="hidden" id="currentEmvPayloadInput" value="" />
+        </div>
+
+        <button
+          type="button"
+          id="simulateWebhookPaidBtn"
+          class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg transition"
+        >
+          ✓ Sudah Bayar? Klik untuk Kirim Robux Instan
+        </button>
+      </div>
+
+      <!-- Stage 2: Live Auto-Order Execution -->
+      <div id="modalStageProcessing" class="hidden space-y-4">
+        <div class="text-center">
+          <h4 id="autoOrderStepTitle" class="font-display text-lg font-bold text-white">Memproses pengiriman Robux...</h4>
+          <p id="autoOrderStepSub" class="text-xs text-zinc-400 mt-0.5">Proses otomatis ± 1 menit</p>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div id="stepIndicator1" class="p-3 rounded-xl bg-[#0D0818] border border-emerald-500/30 text-emerald-300 flex justify-between">
+            <span>✓ 1. Pembayaran QRIS Diterima</span>
+            <span class="font-bold">PAID</span>
+          </div>
+          <div id="stepIndicator2" class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 text-zinc-400 flex justify-between">
+            <span>2. Validasi Username &amp; User ID Roblox</span>
+            <span>ANTREAN</span>
+          </div>
+          <div id="stepIndicator3" class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 text-zinc-400 flex justify-between">
+            <span>3. Mengirim Robux via Send ke Akunmu</span>
+            <span>ANTREAN</span>
+          </div>
+          <div id="stepIndicator4" class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 text-zinc-400 flex justify-between">
+            <span>4. Mencatat Bukti Transaksi di Web</span>
+            <span>ANTREAN</span>
+          </div>
+          <div id="stepIndicator5" class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 text-zinc-400 flex justify-between">
+            <span>5. Mengirim Struk Konfirmasi ke WhatsApp</span>
+            <span>ANTREAN</span>
+          </div>
+        </div>
+
+        <!-- WhatsApp Confirmation Box shown when payment completes -->
+        <div id="waConfirmationBox" class="hidden p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/35 space-y-2.5 text-left">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              Konfirmasi WhatsApp Siap Dikirim
+            </span>
+            <button
+              type="button"
+              id="copyWaReceiptBtn"
+              class="text-[11px] font-semibold text-emerald-200 hover:underline"
+            >
+              Salin Pesan WA
+            </button>
+          </div>
+          <pre id="waReceiptPreviewText" class="bg-[#0D0818] text-zinc-200 p-2.5 rounded-lg text-[11px] font-mono whitespace-pre-wrap leading-relaxed border border-emerald-500/20"></pre>
+          <a
+            id="sendWaToAdminLink"
+            href="https://wa.me/6281234567890"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2 text-center"
+          >
+            <span>📲 Kirim Konfirmasi Pembayaran via WhatsApp</span>
+          </a>
+        </div>
+
+        <div id="modalCompletedActions" class="hidden pt-1 flex flex-col sm:flex-row gap-2">
+          <button
+            type="button"
+            id="viewInTrackerBtn"
+            class="flex-1 py-2.5 px-4 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white font-semibold text-xs transition"
+          >
+            Lihat Bukti di Cek Pesanan
+          </button>
+          <button
+            type="button"
+            id="viewInAdminBtn"
+            class="py-2.5 px-3.5 rounded-xl bg-[#0D0818] hover:bg-purple-950 text-[#C084FC] border border-purple-500/30 font-semibold text-xs transition"
+          >
+            Lihat di Rekap Transaksi Admin
+          </button>
+          <button
+            type="button"
+            id="doneOrderModalBtn"
+            class="py-2.5 px-3 rounded-xl bg-white/10 text-zinc-200 font-semibold text-xs"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: JSON LOG VIEWER ==================== -->
+  <div id="logViewerModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-[#1A132F] border border-purple-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-purple-500/20 pb-3">
+        <div>
+          <h3 class="font-display font-bold text-base text-white">Detail Log Auto-Order</h3>
+          <p id="logModalSubtitle" class="text-xs text-zinc-400">JSON Payload</p>
+        </div>
+        <button type="button" id="closeLogModalBtn" class="w-8 h-8 rounded-lg bg-[#0D0818] text-zinc-400 hover:text-white">✕</button>
+      </div>
+      <pre id="logModalJsonContent" class="bg-[#0D0818] text-purple-200 p-4 rounded-xl text-xs overflow-x-auto max-h-80 font-mono"></pre>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADMIN LOGIN ==================== -->
+  <div id="adminLoginModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-[#1A132F] border border-purple-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-purple-500/20 pb-3">
+        <div>
+          <h3 class="font-display font-bold text-lg text-white">🔒 Login Admin ROEBUX STORE</h3>
+          <p class="text-xs text-zinc-400">Halaman Rekap Transaksi &amp; SQL dikunci khusus Admin</p>
+        </div>
+        <button type="button" id="closeAdminLoginModalBtn" class="w-8 h-8 rounded-lg bg-[#0D0818] text-zinc-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="p-3 rounded-xl bg-[#0D0818] border border-purple-500/25 flex items-center justify-between text-xs">
+        <div>
+          <span class="text-[#C084FC] font-bold block">Akun Demo Admin:</span>
+          <span class="text-zinc-300">User: <code>admin</code> · Pass: <code>roebux123</code></span>
+        </div>
+        <button type="button" id="fillDemoAdminBtn" class="px-3 py-1.5 rounded-lg bg-[#9D4EDD] text-white font-semibold text-xs">
+          Isi Otomatis
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label for="adminUsernameInput" class="block text-xs font-semibold text-zinc-300 mb-1">Username Admin</label>
+          <input
+            type="text"
+            id="adminUsernameInput"
+            placeholder="admin"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#0D0818] border border-purple-500/30 text-white text-sm focus:outline-none focus:border-[#C084FC]"
+          />
+        </div>
+        <div>
+          <label for="adminPasswordInput" class="block text-xs font-semibold text-zinc-300 mb-1">Password Admin</label>
+          <input
+            type="password"
+            id="adminPasswordInput"
+            placeholder="roebux123"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#0D0818] border border-purple-500/30 text-white text-sm focus:outline-none focus:border-[#C084FC]"
+          />
+        </div>
+        <p id="adminLoginErrorMsg" class="hidden text-xs font-semibold text-rose-300 bg-rose-500/20 px-3 py-2 rounded-xl border border-rose-500/30">
+          Username atau password salah! Gunakan admin / roebux123.
+        </p>
+        <button
+          type="button"
+          id="submitAdminLoginBtn"
+          class="w-full py-3 rounded-xl bg-[#9D4EDD] hover:bg-[#A855F7] text-white font-semibold text-sm shadow-lg transition"
+        >
+          Masuk ke Dashboard Admin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Banner -->
+  <div id="toastBanner" class="fixed bottom-5 right-5 z-50 hidden bg-[#1A132F] text-white px-4 py-3 rounded-xl shadow-2xl border border-[#C084FC]/40 text-xs sm:text-sm font-medium items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+    <span id="toastMessage">Berhasil!</span>
+  </div>
+
+  <!-- ==================== G. FOOTER ==================== -->
+  <footer class="mt-auto border-t border-purple-500/15 bg-[#0D0818] py-8 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-md bg-[#9D4EDD] text-white font-display font-bold flex items-center justify-center text-xs">R</div>
+        <span class="font-semibold text-zinc-200">ROEBUX STORE</span>
+        <span>·</span>
+        <span>© 2026 ROEBUX STORE. Bukan produk resmi Roblox Corporation.</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button type="button" data-scroll-to="beli-robux" class="nav-scroll-btn hover:text-white transition">Beli Robux</button>
+        <button type="button" data-scroll-to="cara-order" class="nav-scroll-btn hover:text-white transition">Cara order</button>
+        <button type="button" data-scroll-to="cek-pesanan" class="nav-scroll-btn hover:text-white transition">Cek pesanan</button>
+        <button type="button" data-scroll-to="faq" class="nav-scroll-btn hover:text-white transition">FAQ</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== APPLICATION LOGIC ==================== -->
+  <script>
+    (function () {
+      const ROEBUX_PACKAGES = [
+        { id: 'RBX-50',   robux: 50,   price: 8000,   category: 'small' },
+        { id: 'RBX-100',  robux: 100,  price: 16000,  category: 'small' },
+        { id: 'RBX-150',  robux: 150,  price: 24000,  category: 'small' },
+        { id: 'RBX-200',  robux: 200,  price: 32000,  category: 'small' },
+        { id: 'RBX-250',  robux: 250,  price: 40000,  category: 'small' },
+        { id: 'RBX-300',  robux: 300,  price: 48000,  category: 'small' },
+        { id: 'RBX-350',  robux: 350,  price: 56000,  category: 'medium' },
+        { id: 'RBX-400',  robux: 400,  price: 64000,  category: 'medium' },
+        { id: 'RBX-450',  robux: 450,  price: 72000,  category: 'medium' },
+        { id: 'RBX-500',  robux: 500,  price: 80000,  category: 'medium' },
+        { id: 'RBX-550',  robux: 550,  price: 88000,  category: 'medium' },
+        { id: 'RBX-600',  robux: 600,  price: 96000,  category: 'medium' },
+        { id: 'RBX-650',  robux: 650,  price: 104000, category: 'medium' },
+        { id: 'RBX-700',  robux: 700,  price: 112000, category: 'large' },
+        { id: 'RBX-750',  robux: 750,  price: 120000, category: 'large' },
+        { id: 'RBX-800',  robux: 800,  price: 128000, category: 'large' },
+        { id: 'RBX-850',  robux: 850,  price: 136000, category: 'large' },
+        { id: 'RBX-900',  robux: 900,  price: 144000, category: 'large' },
+        { id: 'RBX-950',  robux: 950,  price: 152000, category: 'large' },
+        { id: 'RBX-1000', robux: 1000, price: 160000, category: 'large' }
+      ];
+
+      const INITIAL_TRANSACTIONS = [
+        {
+          invoice: 'ROE-20261023-906',
+          timestamp: '2026-10-23 14:10:12',
+          username: 'CacaBlox_ID',
+          robloxUserId: '381920411',
+          robux: 500,
+          price: 80000,
+          paymentMethod: 'QRIS',
+          paymentStatus: 'PAID',
+          orderStatus: 'SUCCESS',
+          durationSec: 38,
+          whatsapp: '081288991102'
+        },
+        {
+          invoice: 'ROE-20261023-905',
+          timestamp: '2026-10-23 13:58:45',
+          username: 'RizkyGamer99',
+          robloxUserId: '774829103',
+          robux: 1000,
+          price: 160000,
+          paymentMethod: 'QRIS',
+          paymentStatus: 'PAID',
+          orderStatus: 'SUCCESS',
+          durationSec: 44,
+          whatsapp: '085711223344'
+        },
+        {
+          invoice: 'ROE-20261023-904',
+          timestamp: '2026-10-23 13:45:02',
+          username: 'NaylaSweet_RBX',
+          robloxUserId: '519203844',
+          robux: 250,
+          price: 40000,
+          paymentMethod: 'QRIS',
+          paymentStatus: 'PAID',
+          orderStatus: 'SUCCESS',
+          durationSec: 35,
+          whatsapp: '081377665544'
+        },
+        {
+          invoice: 'ROE-20261023-903',
+          timestamp: '2026-10-23 13:30:19',
+          username: 'AldiPro_Blox',
+          robloxUserId: '901283741',
+          robux: 150,
+          price: 24000,
+          paymentMethod: 'E-Wallet',
+          paymentStatus: 'PAID',
+          orderStatus: 'SUCCESS',
+          durationSec: 49,
+          whatsapp: '089655443322'
+        },
+        {
+          invoice: 'ROE-20261023-902',
+          timestamp: '2026-10-23 13:15:50',
+          username: 'PutriKawaii_07',
+          robloxUserId: '662819305',
+          robux: 300,
+          price: 48000,
+          paymentMethod: 'QRIS',
+          paymentStatus: 'PAID',
+          orderStatus: 'SUCCESS',
+          durationSec: 41,
+          whatsapp: '082199887766'
+        },
+        {
+          invoice: 'ROE-20261023-901',
+          timestamp: '2026-10-23 13:02:12',
+          username: 'DimasBloxFruit',
+          robloxUserId: '449182736',
+          robux: 100,
+          price: 16000,
+          paymentMethod: 'QRIS',
+          paymentStatus: 'PAID',
+          orderStatus: 'SUCCESS',
+          durationSec: 39,
+          whatsapp: '081234567890'
+        }
+      ];
+
+      const STORAGE_KEY = 'roebux_store_transactions_v1';
+
+      let state = {
+        activeTab: 'store',
+        isAdminAuthenticated: false,
+        pendingAdminTabTarget: 'admin',
+        adminWhatsappNumber: '6281234567890',
+        selectedPackageId: 'RBX-50',
+        packageFilter: 'all',
+        verifiedUsername: '',
+        verifiedUserId: '',
+        selectedPayment: 'QRIS (Semua E-Wallet & M-Banking)',
+        selectedFee: 0,
+        transactions: [],
+        pendingOrder: null,
+        autoOrderTimer: null,
+        salesChart: null
+      };
+
+      function loadTransactions() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              state.transactions = parsed;
+              return;
+            }
+          }
+        } catch (e) {}
+        state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+      }
+
+      function saveTransactions() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions));
+        } catch (e) {}
+      }
+
+      function formatRupiah(num) {
+        return 'Rp ' + Number(num).toLocaleString('id-ID');
+      }
+
+      function showToast(msg) {
+        const banner = document.getElementById('toastBanner');
+        const text = document.getElementById('toastMessage');
+        text.textContent = msg;
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+        setTimeout(() => {
+          banner.classList.add('hidden');
+          banner.classList.remove('flex');
+        }, 3200);
+      }
+
+      function deterministicUserId(username) {
+        let hash = 2166136261;
+        const clean = username.trim().toLowerCase();
+        for (let i = 0; i < clean.length; i++) {
+          hash ^= clean.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return String(Math.abs(hash) % 900000000 + 100000000);
+      }
+
+      function getSelectedPackage() {
+        return ROEBUX_PACKAGES.find(p => p.id === state.selectedPackageId) || ROEBUX_PACKAGES[0];
+      }
+
+      // Render 20 Robux Cards in 4x5 Grid (matching warungroebux.vercel.app)
+      function renderPackages() {
+        const grid = document.getElementById('robuxPackagesGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const filtered = ROEBUX_PACKAGES.filter(pkg => {
+          if (state.packageFilter === 'all') return true;
+          return pkg.category === state.packageFilter;
+        });
+
+        filtered.forEach(pkg => {
+          const isSelected = pkg.id === state.selectedPackageId;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `nom-card rounded-2xl p-4 bg-[#1A132F] border border-purple-500/20 text-left flex flex-col justify-between ${
+            isSelected ? 'nom-card-active' : ''
+          }`;
+
+          btn.innerHTML = `
+            <div>
+              <div class="font-display text-lg sm:text-xl font-bold text-white">${pkg.robux.toLocaleString('id-ID')} <span class="text-xs font-semibold text-purple-300">Robux</span></div>
+            </div>
+            <div class="mt-3 pt-2 border-t border-purple-500/15 flex items-center justify-between">
+              <span class="text-xs sm:text-sm font-bold text-[#E879F9]">${formatRupiah(pkg.price)}</span>
+              <span class="w-4 h-4 rounded-full ${isSelected ? 'bg-[#9D4EDD] text-white' : 'bg-white/5 text-zinc-500'} flex items-center justify-center text-[10px]">✓</span>
+            </div>
+          `;
+
+          btn.addEventListener('click', () => {
+            state.selectedPackageId = pkg.id;
+            renderPackages();
+            updateOrderSummary();
+          });
+
+          grid.appendChild(btn);
+        });
+      }
+
+      function renderLiveStreamTape() {
+        const box = document.getElementById('liveStreamBox');
+        if (!box) return;
+        box.innerHTML = state.transactions.slice(0, 3).map(tx => `
+          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#0D0818] border border-purple-500/15">
+            <div>
+              <span class="font-semibold text-[#C084FC]">@${tx.username}</span>
+              <span class="text-zinc-400 ml-1.5">${tx.robux} Robux</span>
+            </div>
+            <span class="text-[11px] font-semibold text-emerald-400">✓ ${tx.durationSec}d</span>
+          </div>
+        `).join('');
+      }
+
+      function updateOrderSummary() {
+        const pkg = getSelectedPackage();
+        const rawUser = document.getElementById('robloxUsernameInput').value.trim();
+        const activeUser = rawUser || state.verifiedUsername;
+
+        document.getElementById('summaryRobux').textContent = pkg ? `${pkg.robux.toLocaleString('id-ID')} Robux` : 'Belum dipilih';
+        document.getElementById('summaryUsername').textContent = activeUser ? '@' + activeUser.replace(/^@/, '') : '–';
+        document.getElementById('summaryPayment').textContent = state.selectedPayment.split(' (')[0];
+        document.getElementById('summaryTotalPrice').textContent = pkg ? formatRupiah(pkg.price + state.selectedFee) : 'Rp 0';
+      }
+
+      function verifyRobloxUsername(rawName) {
+        const clean = (rawName || '').replace(/^@/, '').trim();
+        if (!clean) {
+          showToast('Isi username Roblox kamu terlebih dahulu!');
+          document.getElementById('robloxUsernameInput').focus();
+          return false;
+        }
+        const uid = deterministicUserId(clean);
+        state.verifiedUsername = clean;
+        state.verifiedUserId = uid;
+
+        document.getElementById('robloxUsernameInput').value = clean;
+        document.getElementById('verifiedDisplayName').textContent = '@' + clean;
+        document.getElementById('verifiedUserId').textContent = uid;
+        document.getElementById('verifiedAvatarBox').textContent = clean.charAt(0).toUpperCase();
+        document.getElementById('verifiedUserCard').classList.remove('hidden');
+
+        updateOrderSummary();
+        showToast(`Username @${clean} (ID: ${uid}) terverifikasi!`);
+        return true;
+      }
+
+      function syncAdminNavVisibility() {
+        const adminTabBtn = document.getElementById('navAdminTabBtn');
+        const dbTabBtn = document.getElementById('navDatabaseTabBtn');
+        const loginBtn = document.getElementById('openAdminLoginBtn');
+        const logoutBtn = document.getElementById('adminLogoutBtn');
+
+        if (state.isAdminAuthenticated) {
+          adminTabBtn.classList.remove('hidden');
+          dbTabBtn.classList.remove('hidden');
+          loginBtn.classList.add('hidden');
+          logoutBtn.classList.remove('hidden');
+        } else {
+          adminTabBtn.classList.add('hidden');
+          dbTabBtn.classList.add('hidden');
+          loginBtn.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+        }
+      }
+
+      function openAdminLoginModal(targetTab) {
+        state.pendingAdminTabTarget = targetTab || 'admin';
+        document.getElementById('adminLoginErrorMsg').classList.add('hidden');
+        const m = document.getElementById('adminLoginModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+        document.getElementById('adminUsernameInput').focus();
+      }
+
+      function switchTab(tabName) {
+        if ((tabName === 'admin' || tabName === 'database') && !state.isAdminAuthenticated) {
+          openAdminLoginModal(tabName);
+          return;
+        }
+
+        state.activeTab = tabName;
+        ['store', 'admin', 'database'].forEach(t => {
+          const el = document.getElementById('tab-' + t);
+          if (el) el.classList.toggle('hidden', t !== tabName);
+        });
+
+        if (tabName === 'admin') {
+          renderAdminDashboard();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderTrackerResults(query) {
+        const container = document.getElementById('trackerResultContainer');
+        if (!container) return;
+        const q = (query || '').trim().toLowerCase().replace(/^@/, '');
+
+        const matches = state.transactions.filter(tx => {
+          if (!q) return true;
+          return tx.invoice.toLowerCase().includes(q) || tx.username.toLowerCase().includes(q);
+        }).slice(0, 4);
+
+        if (matches.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-2 p-4 rounded-xl bg-[#0D0818] border border-purple-500/20 text-center text-xs text-zinc-400">
+              Tidak ditemukan pesanan dengan kata kunci <strong>"${query}"</strong>.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = matches.map(tx => `
+          <div class="p-4 rounded-xl bg-[#0D0818] border border-purple-500/20 space-y-2">
+            <div class="flex items-center justify-between border-b border-purple-500/15 pb-2">
+              <span class="font-mono text-xs font-bold text-[#C084FC]">${tx.invoice}</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-[11px] font-semibold">
+                ✓ Terkirim (${tx.durationSec}d)
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div>
+                <span class="text-zinc-500 block">Username</span>
+                <strong class="text-white">@${tx.username}</strong>
+              </div>
+              <div>
+                <span class="text-zinc-500 block">Nominal</span>
+                <strong class="text-[#E879F9]">${tx.robux} Robux</strong>
+              </div>
+              <div>
+                <span class="text-zinc-500 block">Total</span>
+                <strong class="text-white">${formatRupiah(tx.price)}</strong>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function renderAdminDashboard() {
+        document.getElementById('navTxCountBadge').textContent = String(state.transactions.length);
+
+        const totalRev = state.transactions
+          .filter(t => t.paymentStatus === 'PAID')
+          .reduce((acc, t) => acc + Number(t.price), 0);
+
+        const totalRobux = state.transactions
+          .filter(t => t.orderStatus === 'SUCCESS')
+          .reduce((acc, t) => acc + Number(t.robux), 0);
+
+        const successCount = state.transactions.filter(t => t.orderStatus === 'SUCCESS').length;
+        const rate = state.transactions.length > 0
+          ? Math.round((successCount / state.transactions.length) * 100)
+          : 100;
+
+        document.getElementById('kpiTotalRevenue').textContent = formatRupiah(totalRev);
+        document.getElementById('kpiTotalRobux').textContent = totalRobux.toLocaleString('id-ID') + ' R$';
+        document.getElementById('kpiTotalOrders').textContent = state.transactions.length + ' Order';
+        document.getElementById('kpiSuccessRate').textContent = rate + '% Auto-Order Sukses';
+
+        renderAdminTable();
+        renderSalesChart();
+      }
+
+      function renderAdminTable() {
+        const tbody = document.getElementById('adminTransactionsTableBody');
+        if (!tbody) return;
+        const searchQ = (document.getElementById('adminSearchInput').value || '').trim().toLowerCase();
+        const statusFilter = document.getElementById('adminStatusFilter').value;
+
+        const filtered = state.transactions.filter(tx => {
+          const matchStatus = statusFilter === 'ALL' || tx.orderStatus === statusFilter;
+          const matchQuery = !searchQ ||
+            tx.invoice.toLowerCase().includes(searchQ) ||
+            tx.username.toLowerCase().includes(searchQ);
+          return matchStatus && matchQuery;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-zinc-400">Tidak ada transaksi yang cocok.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(tx => `
+          <tr class="hover:bg-white/5 transition">
+            <td class="py-3 px-3 font-mono font-bold text-[#C084FC]">${tx.invoice}</td>
+            <td class="py-3 px-3 text-xs text-zinc-400">${tx.timestamp}</td>
+            <td class="py-3 px-3">
+              <div class="font-bold text-white">@${tx.username}</div>
+              <div class="text-[11px] text-zinc-500">ID: ${tx.robloxUserId}</div>
+            </td>
+            <td class="py-3 px-3 text-right font-bold text-[#E879F9]">${tx.robux} R$</td>
+            <td class="py-3 px-3 text-right font-bold text-white">${formatRupiah(tx.price)}</td>
+            <td class="py-3 px-3 text-xs text-zinc-300">${tx.paymentMethod}</td>
+            <td class="py-3 px-3">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold">
+                ✓ ${tx.orderStatus} (${tx.durationSec}s)
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <a
+                  href="https://wa.me/${(tx.whatsapp || '6281234567890').replace(/^0/, '62')}?text=${encodeURIComponent('Halo Kak @' + tx.username + ', pesanan ' + tx.invoice + ' (' + tx.robux + ' Robux) di ROEBUX STORE sudah berhasil dikirim ya! Terima kasih 🙏')}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-xs font-semibold"
+                  title="Kirim Konfirmasi WA ke Pembeli"
+                >
+                  WA Buyer
+                </a>
+                <button
+                  type="button"
+                  data-log-invoice="${tx.invoice}"
+                  class="view-log-btn px-2.5 py-1 rounded-lg bg-[#0D0818] hover:bg-purple-900/50 text-[#C084FC] border border-purple-500/30 text-xs font-semibold"
+                >
+                  Log JSON
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        tbody.querySelectorAll('.view-log-btn').forEach(btn => {
+          btn.addEventListener('click', () => openLogViewerModal(btn.getAttribute('data-log-invoice')));
+        });
+      }
+
+      function renderSalesChart() {
+        const canvas = document.getElementById('salesChartCanvas');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        const countsByTier = {};
+        state.transactions.forEach(tx => {
+          const label = tx.robux + ' R$';
+          countsByTier[label] = (countsByTier[label] || 0) + 1;
+        });
+
+        if (state.salesChart) state.salesChart.destroy();
+
+        state.salesChart = new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(countsByTier),
+            datasets: [{
+              label: 'Order',
+              data: Object.values(countsByTier),
+              backgroundColor: '#9D4EDD',
+              borderRadius: 8,
+              maxBarThickness: 38
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { precision: 0, color: '#A1A1AA' }, grid: { color: 'rgba(168,85,247,0.1)' } },
+              x: { ticks: { color: '#FFFFFF' }, grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      function openLogViewerModal(invoiceNumber) {
+        const tx = state.transactions.find(t => t.invoice === invoiceNumber);
+        if (!tx) return;
+        const payload = {
+          event: 'auto_order.completed',
+          store: 'ROEBUX STORE',
+          invoice_number: tx.invoice,
+          timestamp: tx.timestamp,
+          customer: { roblox_username: tx.username, roblox_user_id: Number(tx.robloxUserId), whatsapp: tx.whatsapp || '-' },
+          payment_webhook: { gateway: tx.paymentMethod, status: tx.paymentStatus, amount_idr: tx.price },
+          auto_order_worker: { method: 'ROBUX_VIA_SEND', robux_sent: tx.robux, status: tx.orderStatus, execution_time_seconds: tx.durationSec }
+        };
+        document.getElementById('logModalSubtitle').textContent = `${tx.invoice} · @${tx.username}`;
+        document.getElementById('logModalJsonContent').textContent = JSON.stringify(payload, null, 2);
+        const m = document.getElementById('logViewerModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      }
+
+      // Compute standard EMVCo CRC16-CCITT checksum & Dynamic QRIS String (Tag 54)
+      function buildDynamicEmvQris(invoice, amountIdr) {
+        const baseStatic = '00020101021226590014ID.CO.QRIS.WWW01189360091432026102300215ID2026ROEBUX0010303UMI520458165303360';
+        const amountStr = String(Math.floor(amountIdr));
+        const tag54 = '54' + String(amountStr.length).padStart(2, '0') + amountStr;
+        const merchantAndInv = '5802ID5912ROEBUX STORE6009TANGERANG62' + String(invoice.length + 4).padStart(2, '0') + '01' + String(invoice.length).padStart(2, '0') + invoice + '6304';
+        const rawPayload = baseStatic + tag54 + merchantAndInv;
+
+        let crc = 0xFFFF;
+        for (let i = 0; i < rawPayload.length; i++) {
+          crc ^= rawPayload.charCodeAt(i) << 8;
+          for (let j = 0; j < 8; j++) {
+            crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+          }
+        }
+        const crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+        return { fullString: rawPayload + crcHex, crcHex: crcHex };
+      }
+
+      // Draw crisp Dynamic QR Matrix on HTML5 Canvas seeded by the EMVCo payload
+      function drawDynamicQrOnCanvas(emvString) {
+        const canvas = document.getElementById('dynamicQrisCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const size = 25;
+        const cell = canvas.width / size;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const drawFinder = (r0, c0) => {
+          ctx.fillStyle = '#0F0A1C';
+          ctx.fillRect(c0 * cell, r0 * cell, 7 * cell, 7 * cell);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect((c0 + 1) * cell, (r0 + 1) * cell, 5 * cell, 5 * cell);
+          ctx.fillStyle = '#0F0A1C';
+          ctx.fillRect((c0 + 2) * cell, (r0 + 2) * cell, 3 * cell, 3 * cell);
+        };
+
+        drawFinder(0, 0);
+        drawFinder(0, size - 7);
+        drawFinder(size - 7, 0);
+
+        let seed = 2166136261;
+        for (let i = 0; i < emvString.length; i++) {
+          seed ^= emvString.charCodeAt(i);
+          seed = Math.imul(seed, 16777619);
+        }
+
+        ctx.fillStyle = '#0F0A1C';
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            const inTopLeft = r < 8 && c < 8;
+            const inTopRight = r < 8 && c >= size - 8;
+            const inBotLeft = r >= size - 8 && c < 8;
+            const inCenterLogo = r >= 10 && r <= 14 && c >= 10 && c <= 14;
+            if (inTopLeft || inTopRight || inBotLeft || inCenterLogo) continue;
+
+            seed ^= (r * 31 + c * 17) & 0xFF;
+            seed = Math.imul(seed, 16777619);
+            if ((Math.abs(seed) % 10) < 5) {
+              ctx.fillRect(c * cell, r * cell, Math.ceil(cell), Math.ceil(cell));
+            }
+          }
+        }
+
+        // Center ROEBUX emblem inside QR
+        ctx.fillStyle = '#9D4EDD';
+        ctx.fillRect(10 * cell, 10 * cell, 5 * cell, 5 * cell);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('R', 12.5 * cell, 12.6 * cell);
+      }
+
+      function startQrisCountdown() {
+        if (state.qrisCountdownInterval) clearInterval(state.qrisCountdownInterval);
+        let remaining = 15 * 60 - 1;
+        const timerEl = document.getElementById('qrisCountdownTimer');
+        const updateTimer = () => {
+          if (!timerEl) return;
+          const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+          const s = String(remaining % 60).padStart(2, '0');
+          timerEl.textContent = `${m}:${s}`;
+          if (remaining > 0) remaining--;
+        };
+        updateTimer();
+        state.qrisCountdownInterval = setInterval(updateTimer, 1000);
+      }
+
+      function startCheckoutFlow() {
+        const rawInput = document.getElementById('robloxUsernameInput').value.trim();
+        if (!rawInput) {
+          showToast('Tulis username Roblox kamu dulu di kotak pesanan!');
+          document.getElementById('robloxUsernameInput').focus();
+          return;
+        }
+        verifyRobloxUsername(rawInput);
+
+        const pkg = getSelectedPackage();
+        const randomNum = Math.floor(100 + Math.random() * 899);
+        const invoice = `ROE-20261023-${randomNum}`;
+        const total = pkg.price + state.selectedFee;
+
+        const qrisData = buildDynamicEmvQris(invoice, total);
+
+        state.pendingOrder = {
+          invoice: invoice,
+          username: state.verifiedUsername,
+          robloxUserId: state.verifiedUserId,
+          robux: pkg.robux,
+          price: total,
+          paymentMethod: state.selectedPayment.split(' (')[0],
+          whatsapp: document.getElementById('buyerWhatsappInput').value.trim() || '0812xxxxxxxx',
+          emvPayload: qrisData.fullString,
+          crcHex: qrisData.crcHex
+        };
+
+        document.getElementById('modalInvoiceBadge').textContent = invoice;
+        document.getElementById('modalPayAmount').textContent = formatRupiah(total);
+        document.getElementById('modalPayDetails').textContent = `${pkg.robux} Robux → @${state.verifiedUsername}`;
+        document.getElementById('modalQrisCrcBadge').textContent = `CRC16: ${qrisData.crcHex} · TAG 54: Rp ${total.toLocaleString('id-ID')}`;
+        document.getElementById('currentEmvPayloadInput').value = qrisData.fullString;
+
+        drawDynamicQrOnCanvas(qrisData.fullString);
+        startQrisCountdown();
+
+        document.getElementById('modalStagePayment').classList.remove('hidden');
+        document.getElementById('modalStageProcessing').classList.add('hidden');
+        document.getElementById('modalCompletedActions').classList.add('hidden');
+
+        const modal = document.getElementById('checkoutModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function triggerLiveAutoOrder() {
+        if (!state.pendingOrder) return;
+        if (state.autoOrderTimer) clearInterval(state.autoOrderTimer);
+
+        document.getElementById('modalStagePayment').classList.add('hidden');
+        document.getElementById('modalStageProcessing').classList.remove('hidden');
+        document.getElementById('modalCompletedActions').classList.add('hidden');
+
+        const setStepDone = (id, label) => {
+          const el = document.getElementById(id);
+          el.className = 'p-3 rounded-xl bg-[#0D0818] border border-emerald-500/30 text-emerald-300 flex justify-between font-semibold';
+          el.innerHTML = `<span>✓ ${label}</span><span>SELESAI</span>`;
+        };
+        const setStepPending = (id, label) => {
+          const el = document.getElementById(id);
+          el.className = 'p-3 rounded-xl bg-[#0D0818] border border-purple-500/20 text-zinc-400 flex justify-between';
+          el.innerHTML = `<span>${label}</span><span>ANTREAN</span>`;
+        };
+
+        document.getElementById('waConfirmationBox').classList.add('hidden');
+        setStepDone('stepIndicator1', '1. Pembayaran QRIS Diterima');
+        setStepPending('stepIndicator2', '2. Validasi Username & User ID Roblox');
+        setStepPending('stepIndicator3', '3. Mengirim Robux via Send ke Akunmu');
+        setStepPending('stepIndicator4', '4. Mencatat Bukti Transaksi di Web');
+        setStepPending('stepIndicator5', '5. Mengirim Struk Konfirmasi ke WhatsApp');
+
+        document.getElementById('autoOrderStepTitle').textContent = 'Memproses pengiriman Robux...';
+        document.getElementById('autoOrderStepSub').textContent = 'Proses otomatis ± 1 menit';
+
+        let step = 1;
+        state.autoOrderTimer = setInterval(() => {
+          step++;
+          if (step === 2) {
+            setStepDone('stepIndicator2', `2. Akun @${state.pendingOrder.username} (ID: ${state.pendingOrder.robloxUserId}) Valid`);
+          } else if (step === 3) {
+            setStepDone('stepIndicator3', `3. ${state.pendingOrder.robux} Robux Terkirim ke @${state.pendingOrder.username}`);
+          } else if (step === 4) {
+            setStepDone('stepIndicator4', '4. Transaksi Tercatat Resmi di Web');
+          } else if (step === 5) {
+            clearInterval(state.autoOrderTimer);
+            setStepDone('stepIndicator5', `5. Struk WA Siap Dikirim (${state.pendingOrder.whatsapp})`);
+            document.getElementById('autoOrderStepTitle').textContent = 'Pembayaran & Auto-Order Selesai! 🎉';
+            document.getElementById('autoOrderStepSub').textContent = `${state.pendingOrder.robux} Robux sudah masuk ke @${state.pendingOrder.username}.`;
+
+            const waMessage = [
+              '*KONFIRMASI PEMBAYARAN ROEBUX STORE*',
+              `No. Invoice : ${state.pendingOrder.invoice}`,
+              `Username    : @${state.pendingOrder.username} (ID: ${state.pendingOrder.robloxUserId})`,
+              `Paket Robux : ${state.pendingOrder.robux} Robux (Utuh)`,
+              `Total Bayar : ${formatRupiah(state.pendingOrder.price)} (QRIS Dinamis - LUNAS)`,
+              `WA Pembeli  : ${state.pendingOrder.whatsapp}`,
+              `Status      : Auto-Order Selesai (± 1 Menit)`
+            ].join('\n');
+
+            document.getElementById('waReceiptPreviewText').textContent = waMessage;
+            const cleanAdminWa = (state.adminWhatsappNumber || '6281234567890').replace(/[^0-9]/g, '');
+            document.getElementById('sendWaToAdminLink').href = `https://wa.me/${cleanAdminWa}?text=${encodeURIComponent(waMessage)}`;
+            document.getElementById('waConfirmationBox').classList.remove('hidden');
+            document.getElementById('modalCompletedActions').classList.remove('hidden');
+
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+            const newRecord = {
+              invoice: state.pendingOrder.invoice,
+              timestamp: ts,
+              username: state.pendingOrder.username,
+              robloxUserId: state.pendingOrder.robloxUserId,
+              robux: state.pendingOrder.robux,
+              price: state.pendingOrder.price,
+              paymentMethod: state.pendingOrder.paymentMethod,
+              paymentStatus: 'PAID',
+              orderStatus: 'SUCCESS',
+              durationSec: 36,
+              whatsapp: state.pendingOrder.whatsapp
+            };
+
+            state.transactions.unshift(newRecord);
+            saveTransactions();
+            renderLiveStreamTape();
+            renderTrackerResults('');
+            document.getElementById('navTxCountBadge').textContent = String(state.transactions.length);
+            showToast(`Auto-Order ${newRecord.invoice} sukses & tercatat di web!`);
+          }
+        }, 700);
+      }
+
+      function copyTextFromElement(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const text = el.textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => showToast('Kode berhasil disalin!')).catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('Kode berhasil disalin!');
+        } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      function exportTransactionsCsv() {
+        const headers = ['Invoice', 'Waktu', 'Username_Roblox', 'Roblox_User_ID', 'Paket_Robux', 'Total_Bayar_IDR', 'Metode_Pembayaran', 'Status_Bayar', 'Status_Order', 'Durasi_Detik'];
+        const rows = state.transactions.map(t => [
+          t.invoice, t.timestamp, t.username, t.robloxUserId, t.robux, t.price, `"${t.paymentMethod}"`, t.paymentStatus, t.orderStatus, t.durationSec
+        ]);
+        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'rekap-transaksi-roebux-store.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('File CSV berhasil diunduh!');
+      }
+
+      function scrollToSection(sectionId) {
+        if (state.activeTab !== 'store') {
+          switchTab('store');
+        }
+        setTimeout(() => {
+          const target = document.getElementById(sectionId);
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+      }
+
+      function initEvents() {
+        document.getElementById('brandHomeBtn').addEventListener('click', () => switchTab('store'));
+        document.getElementById('headerBuyNowBtn').addEventListener('click', () => scrollToSection('beli-robux'));
+        document.getElementById('heroChooseNominalBtn').addEventListener('click', () => scrollToSection('beli-robux'));
+        document.getElementById('heroHowToOrderBtn').addEventListener('click', () => scrollToSection('cara-order'));
+
+        document.querySelectorAll('.nav-scroll-btn').forEach(btn => {
+          btn.addEventListener('click', () => scrollToSection(btn.getAttribute('data-scroll-to')));
+        });
+
+        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+        });
+
+        document.getElementById('backToStoreFromAdminBtn').addEventListener('click', () => switchTab('store'));
+        document.getElementById('backToStoreFromDbBtn').addEventListener('click', () => switchTab('store'));
+
+        document.getElementById('verifyUsernameBtn').addEventListener('click', () => {
+          verifyRobloxUsername(document.getElementById('robloxUsernameInput').value);
+        });
+
+        document.getElementById('robloxUsernameInput').addEventListener('input', updateOrderSummary);
+
+        document.querySelectorAll('.sample-user-btn').forEach(btn => {
+          btn.addEventListener('click', () => verifyRobloxUsername(btn.getAttribute('data-sample-user')));
+        });
+
+        document.querySelectorAll('.pkg-filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.packageFilter = btn.getAttribute('data-pkg-filter');
+            document.querySelectorAll('.pkg-filter-btn').forEach(b => {
+              const active = b.getAttribute('data-pkg-filter') === state.packageFilter;
+              b.className = active
+                ? 'pkg-filter-btn px-3 py-1 rounded-lg text-xs font-semibold bg-[#9D4EDD] text-white transition'
+                : 'pkg-filter-btn px-3 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition';
+            });
+            renderPackages();
+          });
+        });
+
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.selectedPayment = btn.getAttribute('data-payment');
+            state.selectedFee = Number(btn.getAttribute('data-fee') || 0);
+            document.querySelectorAll('.payment-btn').forEach(b => {
+              b.className = b === btn
+                ? 'payment-btn p-2.5 rounded-xl bg-[#241B3F] border border-[#C084FC] text-left transition'
+                : 'payment-btn p-2.5 rounded-xl bg-[#0D0818] border border-purple-500/20 hover:border-purple-400/50 text-left transition';
+            });
+            updateOrderSummary();
+          });
+        });
+
+        // FAQ Accordion
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const body = item.querySelector('.faq-body');
+            const arrow = item.querySelector('.faq-arrow');
+            if (!body) return;
+            const isHidden = body.classList.contains('hidden');
+            document.querySelectorAll('.faq-body').forEach(b => b.classList.add('hidden'));
+            document.querySelectorAll('.faq-arrow').forEach(a => a.classList.remove('rotate-180'));
+            if (isHidden) {
+              body.classList.remove('hidden');
+              if (arrow) arrow.classList.add('rotate-180');
+            }
+          });
+        });
+
+        // Checkout & Modal
+        document.getElementById('createOrderBtn').addEventListener('click', startCheckoutFlow);
+        document.getElementById('downloadQrisPngBtn').addEventListener('click', () => {
+          const canvas = document.getElementById('dynamicQrisCanvas');
+          if (!canvas || !state.pendingOrder) return;
+          const url = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `QRIS-${state.pendingOrder.invoice}.png`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showToast('Gambar QRIS Dinamis berhasil diunduh!');
+        });
+        document.getElementById('copyEmvPayloadBtn').addEventListener('click', () => {
+          const payload = document.getElementById('currentEmvPayloadInput').value;
+          if (!payload) return;
+          fallbackCopy(payload);
+          showToast('String EMVCo QRIS Dinamis berhasil disalin!');
+        });
+        document.getElementById('copyWaReceiptBtn').addEventListener('click', () => {
+          const txt = document.getElementById('waReceiptPreviewText').textContent;
+          if (!txt) return;
+          fallbackCopy(txt);
+          showToast('Format konfirmasi WhatsApp berhasil disalin!');
+        });
+        document.getElementById('saveAdminWaBtn').addEventListener('click', () => {
+          const rawWa = document.getElementById('adminWaNumberInput').value.trim().replace(/[^0-9]/g, '');
+          if (!rawWa) {
+            showToast('Masukkan nomor WhatsApp Admin yang valid!');
+            return;
+          }
+          state.adminWhatsappNumber = rawWa.replace(/^0/, '62');
+          document.getElementById('adminWaNumberInput').value = state.adminWhatsappNumber;
+          showToast(`Nomor WA Admin (${state.adminWhatsappNumber}) berhasil disimpan!`);
+        });
+        document.getElementById('closeCheckoutModalBtn').addEventListener('click', () => {
+          const m = document.getElementById('checkoutModal');
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+        });
+        document.getElementById('doneOrderModalBtn').addEventListener('click', () => {
+          const m = document.getElementById('checkoutModal');
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+        });
+        document.getElementById('viewInTrackerBtn').addEventListener('click', () => {
+          const m = document.getElementById('checkoutModal');
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+          if (state.pendingOrder) {
+            document.getElementById('trackQueryInput').value = state.pendingOrder.invoice;
+            renderTrackerResults(state.pendingOrder.invoice);
+          }
+          scrollToSection('cek-pesanan');
+        });
+        document.getElementById('viewInAdminBtn').addEventListener('click', () => {
+          const m = document.getElementById('checkoutModal');
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+          switchTab('admin');
+        });
+        document.getElementById('simulateWebhookPaidBtn').addEventListener('click', triggerLiveAutoOrder);
+
+        // Tracker Search
+        document.getElementById('searchTrackBtn').addEventListener('click', () => {
+          renderTrackerResults(document.getElementById('trackQueryInput').value);
+        });
+        document.getElementById('trackQueryInput').addEventListener('input', (e) => {
+          renderTrackerResults(e.target.value);
+        });
+
+        // Admin Auth
+        document.getElementById('openAdminLoginBtn').addEventListener('click', () => openAdminLoginModal('admin'));
+        document.getElementById('closeAdminLoginModalBtn').addEventListener('click', () => {
+          const m = document.getElementById('adminLoginModal');
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+        });
+        document.getElementById('fillDemoAdminBtn').addEventListener('click', () => {
+          document.getElementById('adminUsernameInput').value = 'admin';
+          document.getElementById('adminPasswordInput').value = 'roebux123';
+          document.getElementById('adminLoginErrorMsg').classList.add('hidden');
+        });
+        document.getElementById('submitAdminLoginBtn').addEventListener('click', () => {
+          const u = document.getElementById('adminUsernameInput').value.trim().toLowerCase();
+          const p = document.getElementById('adminPasswordInput').value.trim();
+          if ((u === 'admin' || u === 'admin@roebux.store') && p === 'roebux123') {
+            state.isAdminAuthenticated = true;
+            const m = document.getElementById('adminLoginModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            syncAdminNavVisibility();
+            switchTab(state.pendingAdminTabTarget || 'admin');
+            showToast('Mode Admin terbuka! Menu Rekap Transaksi & SQL kini aktif.');
+          } else {
+            document.getElementById('adminLoginErrorMsg').classList.remove('hidden');
+          }
+        });
+        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+          state.isAdminAuthenticated = false;
+          syncAdminNavVisibility();
+          switchTab('store');
+          showToast('Keluar dari Mode Admin.');
+        });
+
+        // Admin Controls
+        document.getElementById('adminSearchInput').addEventListener('input', renderAdminTable);
+        document.getElementById('adminStatusFilter').addEventListener('change', renderAdminTable);
+        document.getElementById('exportCsvBtn').addEventListener('click', exportTransactionsCsv);
+
+        document.getElementById('simulateRandomOrderBtn').addEventListener('click', () => {
+          const sampleUsers = ['KaylaBlox_ID', 'FajarRoblox99', 'SintaKawaii_RBX', 'BimaKing_01', 'ZahraSweet_ID'];
+          const randUser = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+          const randPkg = ROEBUX_PACKAGES[Math.floor(Math.random() * ROEBUX_PACKAGES.length)];
+          const randInv = `ROE-20261023-${Math.floor(100 + Math.random() * 899)}`;
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+          state.transactions.unshift({
+            invoice: randInv,
+            timestamp: ts,
+            username: randUser,
+            robloxUserId: deterministicUserId(randUser),
+            robux: randPkg.robux,
+            price: randPkg.price,
+            paymentMethod: 'QRIS',
+            paymentStatus: 'PAID',
+            orderStatus: 'SUCCESS',
+            durationSec: Math.floor(32 + Math.random() * 20),
+            whatsapp: '081299887711'
+          });
+          saveTransactions();
+          renderLiveStreamTape();
+          renderTrackerResults('');
+          renderAdminDashboard();
+          showToast(`Order baru ${randInv} (@${randUser} - ${randPkg.robux} R$) tercatat!`);
+        });
+
+        document.getElementById('resetDemoDataBtn').addEventListener('click', () => {
+          state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+          saveTransactions();
+          renderLiveStreamTape();
+          renderTrackerResults('');
+          renderAdminDashboard();
+          showToast('Data transaksi di-reset ke awal.');
+        });
+
+        document.getElementById('closeLogModalBtn').addEventListener('click', () => {
+          const m = document.getElementById('logViewerModal');
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+        });
+
+        document.querySelectorAll('.copy-code-btn').forEach(btn => {
+          btn.addEventListener('click', () => copyTextFromElement(btn.getAttribute('data-copy-target')));
+        });
+      }
+
+      loadTransactions();
+      renderPackages();
+      renderLiveStreamTape();
+      renderTrackerResults('');
+      updateOrderSummary();
+      initEvents();
+      document.getElementById('navTxCountBadge').textContent = String(state.transactions.length);
+    })();
+  </script>
+</body>
+</html>
